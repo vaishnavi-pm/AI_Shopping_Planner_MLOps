@@ -1,0 +1,12 @@
+[
+  "ratings",
+  "no_of_ratings",
+  "discount_price",
+  "actual_price",
+  "discount_amount",
+  "discount_percentage",
+  "popularity_score",
+  "value_score",
+  "main_category",
+  "sub_category"
+]
