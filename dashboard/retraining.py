@@ -1,18 +1,21 @@
-import json
-import os
 import subprocess
+import sys
+from pathlib import Path
 
 import streamlit as st
 
 from dashboard_utils import load_json, section_card
 
 
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+
+
 def show():
     st.markdown("<div class='page-title'>♻️ Retraining</div>", unsafe_allow_html=True)
     st.markdown("<div class='page-subtitle'>Run model retraining and refresh metrics automatically.</div>", unsafe_allow_html=True)
 
-    metrics = load_json("models/metrics.json")
-    training_info = load_json("models/training_info.json")
+    metrics = load_json(str(PROJECT_ROOT / "models" / "metrics.json"))
+    training_info = load_json(str(PROJECT_ROOT / "models" / "training_info.json"))
 
     st.markdown("---")
     st.subheader("Current Model Snapshot")
@@ -28,17 +31,19 @@ def show():
     if st.button("🚀 Retrain Model"):
         with st.spinner("Running retraining pipeline..."):
             process = subprocess.run(
-                ["python", "src/train.py"],
+                [sys.executable, str(PROJECT_ROOT / "src" / "train.py")],
+                cwd=PROJECT_ROOT,
                 capture_output=True,
                 text=True,
+                timeout=1800,
             )
 
         if process.returncode == 0:
             st.success("✅ Model retraining completed successfully.")
             st.code(process.stdout)
             st.markdown("---")
-            new_metrics = load_json("models/metrics.json")
-            new_training_info = load_json("models/training_info.json")
+            new_metrics = load_json(str(PROJECT_ROOT / "models" / "metrics.json"))
+            new_training_info = load_json(str(PROJECT_ROOT / "models" / "training_info.json"))
             st.write("### Updated Metrics")
             if new_metrics:
                 st.write(f"- Accuracy: {new_metrics.get('Accuracy', 0):.2%}")

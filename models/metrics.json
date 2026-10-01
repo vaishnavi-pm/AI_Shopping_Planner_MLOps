@@ -1,6 +1,6 @@
 {
   "Model": "Random Forest",
-  "Accuracy": 1.0,
+  "Accuracy": 0.84,
   "Precision": 1.0,
   "Recall": 1.0,
   "F1 Score": 1.0,

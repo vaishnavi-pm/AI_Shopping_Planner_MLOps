@@ -34,109 +34,128 @@ def apply_dark_theme():
         <style>
         :root {
             color-scheme: dark;
-            background: #0b1220;
-            color: #e6edf3;
+            --page: #080808;
+            --surface: #111111;
+            --surface-raised: #171717;
+            --border: #282828;
+            --text: #f5f5f5;
+            --muted: #a3a3a3;
+            --quiet: #737373;
         }
 
-        .css-1d391kg {
-            background-color: #0b1220 !important;
+        html, body, [data-testid="stAppViewContainer"], .stApp {
+            background: var(--page);
+            color: var(--text);
+            font-family: Inter, "Segoe UI", sans-serif;
         }
 
-        .reportview-container,
-        .main,
-        .block-container {
-            background-color: #0b1220;
-            color: #e6edf3;
+        [data-testid="stHeader"] { background: transparent; }
+        [data-testid="stAppViewContainer"] > .main { background: var(--page); }
+        [data-testid="stMainBlockContainer"] {
+            max-width: 1480px;
+            padding: 2rem 3rem 4rem;
         }
-
-        .stButton > button {
-            background: linear-gradient(135deg, #5b8de1 0%, #4737ff 100%);
+        [data-testid="stSidebar"] {
+            background: #0d0d0d;
+            border-right: 1px solid var(--border);
+        }
+        [data-testid="stSidebar"] > div:first-child { padding-top: 1.3rem; }
+        [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p {
+            color: var(--muted);
+        }
+        [data-testid="stSidebar"] div[role="radiogroup"] { gap: 0.2rem; }
+        [data-testid="stSidebar"] div[role="radiogroup"] label {
+            min-height: 2.55rem;
+            border-radius: 6px;
+            padding: 0.38rem 0.65rem;
+            color: var(--muted);
+            transition: background 160ms ease, color 160ms ease;
+        }
+        [data-testid="stSidebar"] div[role="radiogroup"] label:hover {
+            background: #1b1b1b;
             color: white;
-            border: none;
-            border-radius: 12px;
-            padding: 0.75rem 1rem;
-            box-shadow: 0 10px 20px rgba(14, 68, 171, 0.22);
+        }
+        [data-testid="stSidebar"] div[role="radiogroup"] label:has(input:checked) {
+            background: #f5f5f5;
+            color: #080808;
+        }
+        [data-testid="stSidebar"] div[role="radiogroup"] label:has(input:checked) p {
+            color: #080808;
+        }
+        [data-testid="stSidebar"] div[role="radiogroup"] label > div:first-child {
+            display: none;
         }
 
-        .stButton > button:hover {
-            opacity: 0.9;
+        h1, h2, h3, h4 { color: var(--text); letter-spacing: 0; }
+        h1 { font-size: 2.25rem; font-weight: 650; }
+        h2 { font-size: 1.45rem; font-weight: 600; }
+        p, li, label, [data-testid="stCaptionContainer"] { color: var(--muted); }
+        hr { border-color: var(--border); }
+        [data-testid="stMetric"] {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 7px;
+            padding: 1rem 1.15rem;
         }
+        [data-testid="stMetricLabel"] p { color: var(--muted); font-size: 0.82rem; }
+        [data-testid="stMetricValue"] { color: var(--text); font-size: 1.8rem; }
 
-        .metric-card,
-        .tech-card,
-        .panel-card {
-            border-radius: 18px;
-            padding: 20px;
-            background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(255,255,255,0.08);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.25);
-            margin-bottom: 18px;
-        }
-
-        .metric-title {
-            font-size: 0.9rem;
-            color: #8ca0c1;
-            margin-bottom: 0.5rem;
-        }
-
-        .metric-value {
-            font-size: 2rem;
-            font-weight: 700;
-            color: #ffffff;
-            margin-bottom: 0.35rem;
-        }
-
-        .metric-subtitle {
-            font-size: 0.85rem;
-            color: #a1b0d1;
-        }
-
-        .page-title {
-            font-size: 2.75rem;
-            font-weight: 800;
-            letter-spacing: -0.06rem;
-        }
-
-        .page-subtitle {
-            font-size: 1.05rem;
-            color: #a4b3cf;
-            margin-top: 0.15rem;
-        }
-
-        .section-banner {
-            border-radius: 18px;
-            padding: 22px;
-            background: linear-gradient(
-                135deg,
-                rgba(56, 64, 106, 0.9),
-                rgba(34, 40, 76, 0.9)
-            );
-            border: 1px solid rgba(255,255,255,0.08);
-            margin-bottom: 24px;
-        }
-
-        .tech-card {
-            min-height: 120px;
-        }
-
-        .tech-title {
-            font-size: 1rem;
+        .stButton > button, [data-testid="stFormSubmitButton"] > button {
+            min-height: 2.65rem;
+            background: #f5f5f5;
+            color: #080808;
+            border: 1px solid #f5f5f5;
+            border-radius: 5px;
             font-weight: 600;
-            color: #ffffff;
-            margin-bottom: 0.35rem;
+            transition: transform 150ms ease, background 150ms ease;
         }
-
-        .tech-description {
-            color: #c7d2f1;
-            line-height: 1.55;
+        .stButton > button:hover, [data-testid="stFormSubmitButton"] > button:hover {
+            background: #d4d4d4;
+            border-color: #d4d4d4;
+            color: #080808;
+            transform: translateY(-1px);
         }
-
-        .sidebar .sidebar-content {
-            background: linear-gradient(
-                180deg,
-                #09101d 0%,
-                #131c34 100%
-            );
+        .stButton > button[kind="secondary"] {
+            background: transparent;
+            color: var(--text);
+            border-color: #383838;
+        }
+        input, textarea, [data-baseweb="select"] > div {
+            background: #111111 !important;
+            border-color: #303030 !important;
+            border-radius: 5px !important;
+        }
+        [data-testid="stDataFrame"], [data-testid="stTable"] {
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        .metric-card, .tech-card, .panel-card {
+            border-radius: 7px;
+            padding: 1.25rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            margin-bottom: 1rem;
+        }
+        .metric-title { color: var(--muted); font-size: 0.85rem; margin-bottom: 0.45rem; }
+        .metric-value { color: var(--text); font-size: 1.8rem; font-weight: 650; margin-bottom: 0.3rem; }
+        .metric-subtitle { color: var(--quiet); font-size: 0.82rem; }
+        .page-title { color: var(--text); font-size: 2.3rem; font-weight: 650; }
+        .page-subtitle { color: var(--muted); font-size: 1rem; margin-top: 0.2rem; }
+        .section-banner {
+            border-radius: 7px;
+            padding: 1.1rem 1.25rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            margin: 1rem 0 1.4rem;
+        }
+        .tech-card { min-height: 112px; }
+        .tech-title { color: var(--text); font-size: 1rem; font-weight: 600; margin-bottom: 0.35rem; }
+        .tech-description { color: var(--muted); line-height: 1.55; }
+        [data-testid="stPlotlyChart"] { border: 1px solid var(--border); border-radius: 6px; }
+        @media (max-width: 760px) {
+            [data-testid="stMainBlockContainer"] { padding: 1.25rem 1rem 3rem; }
+            .page-title, h1 { font-size: 1.8rem; }
         }
         </style>
         """,

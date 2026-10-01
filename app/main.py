@@ -1,16 +1,7 @@
-from fastapi import FastAPI
-import joblib
-import numpy as np
+from pathlib import Path
+import runpy
 
-app = FastAPI()
 
-model = joblib.load("models/best_model.pkl")
-
-@app.get("/")
-def home():
-    return {"message": "AI Shopping Planner API"}
-
-@app.post("/predict")
-def predict(features: list):
-    prediction = model.predict([features])
-    return {"prediction": prediction.tolist()}
+if __name__ == "__main__":
+    dashboard_path = Path(__file__).resolve().parents[1] / "dashboard.py"
+    runpy.run_path(str(dashboard_path), run_name="__main__")

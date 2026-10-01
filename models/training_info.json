@@ -1,6 +1,6 @@
 {
   "model_name": "Random Forest",
-  "training_date": "2026-07-20 11:54:25",
+  "training_date": "2026-10-01 07:57:17",
   "training_samples": 267970,
   "testing_samples": 66993,
   "feature_names": [

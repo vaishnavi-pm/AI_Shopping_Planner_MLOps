@@ -1,3 +1,5 @@
 timestamp,ratings,no_of_ratings,discount_price,actual_price,discount_amount,discount_percentage,popularity_score,value_score,main_category,sub_category,prediction,status
 2026-07-20 11:49:45,0.7,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,Avoid,Success
 2026-07-20 11:51:49,4.5,2500.0,799.0,1299.0,500.0,38.5,88.0,85.0,1.0,5.0,Wait,Success
+2026-07-27 11:26:54,4.5,12500.0,1499.0,1999.0,500.0,25.0,90.0,0.75,1.0,5.0,Wait,Success
+2026-07-27 11:30:49,4.5,12500.0,1499.0,1999.0,500.0,25.0,90.0,0.75,1.0,5.0,Wait,Success

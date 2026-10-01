@@ -2,99 +2,222 @@ import csv
 import os
 from datetime import datetime
 
-import joblib
 import pandas as pd
 import streamlit as st
 
-from dashboard_utils import load_json, load_dataframe, section_card
+from dashboard_utils import section_card
 
 
 def show():
-    st.markdown("<div class='page-title'>🔮 Prediction</div>", unsafe_allow_html=True)
-    st.markdown("<div class='page-subtitle'>Generate predictions using the deployed model and log production results.</div>", unsafe_allow_html=True)
+    st.markdown("<div class='page-title'>🛒 AI Shopping Planner</div>", unsafe_allow_html=True)
+    st.markdown(
+        "<div class='page-subtitle'>Plan your shopping intelligently based on your budget and needs.</div>",
+        unsafe_allow_html=True,
+    )
 
-    model_path = "models/best_model.pkl"
-    feature_path = "models/feature_names.json"
+    dataset_path = "data/Amazon_Products.csv"
 
-    if not os.path.exists(model_path):
-        st.error("Trained model not found. Run src/train.py to generate models/best_model.pkl.")
+    if not os.path.exists(dataset_path):
+        st.error("Dataset not found.")
         return
 
-    model = joblib.load(model_path)
-    feature_names = load_json(feature_path)
-
-    if not feature_names:
-        df = load_dataframe("data/processed/train.csv")
-        if df.empty:
-            st.error("Feature metadata not found and dataset is unavailable.")
-            return
-        feature_names = [col for col in df.columns if col != "decision"]
+    df = pd.read_csv(dataset_path)
 
     st.markdown("---")
 
-    with st.form(key="prediction_form"):
-        st.subheader("Input Features")
-        user_inputs = {}
-        for feature in feature_names:
-            user_inputs[feature] = st.number_input(
-                label=feature.replace("_", " ").title(),
-                value=0.0,
-                step=0.1,
-                format="%.4f",
+    with st.form("shopping_form"):
+
+        st.subheader("Enter Your Requirements")
+
+        budget = st.number_input(
+            "Budget (₹)",
+            min_value=1000,
+            value=50000,
+            step=1000,
+        )
+
+        purpose = st.selectbox(
+            "Purpose",
+            [
+                "Hostel",
+                "Home",
+                "Office",
+                "Gaming",
+                "Travel",
+            ],
+        )
+
+        priority = st.selectbox(
+            "Priority",
+            [
+                "Study",
+                "Work",
+                "Entertainment",
+                "Daily Use",
+            ],
+        )
+
+        family_size = st.number_input(
+            "Family Size",
+            min_value=1,
+            max_value=10,
+            value=1,
+        )
+
+        submit = st.form_submit_button("🚀 Generate Shopping Plan")
+
+    if submit:
+
+        data = df.copy()
+
+        data = data[data["Purpose"] == purpose]
+
+        if priority != "Daily Use":
+            data = data[
+                (data["Priority"] == priority)
+                | (data["Priority"] == "Daily Use")
+            ]
+
+        recommendations = []
+
+        total_cost = 0
+
+        for _, row in data.iterrows():
+
+            price = row["Price"]
+
+            if total_cost + price <= budget:
+
+                recommendation = "Buy Now"
+                total_cost += price
+
+            elif price <= budget * 0.20:
+
+                recommendation = "Wait"
+
+            else:
+
+                recommendation = "Avoid"
+
+            recommendations.append(
+                {
+                    "Product": row["Product"],
+                    "Price": price,
+                    "Rating": row["Rating"],
+                    "Recommendation": recommendation,
+                }
             )
 
-        submit_prediction = st.form_submit_button(label="🚀 Predict")
+        result = pd.DataFrame(recommendations)
 
-        if submit_prediction:
-            try:
-                input_df = pd.DataFrame([user_inputs])
-                prediction = model.predict(input_df)
-                prediction_value = prediction[0]
+        st.success("Shopping Plan Generated Successfully")
 
-                st.success(f"Prediction Result: **{prediction_value}**")
-                st.info("The prediction has been logged for monitoring.")
+        st.dataframe(
+            result,
+            use_container_width=True,
+        )
 
-                os.makedirs("monitoring", exist_ok=True)
-                log_file = "monitoring/logs.csv"
-                file_exists = os.path.exists(log_file)
+        remaining = budget - total_cost
 
-                with open(log_file, "a", newline="", encoding="utf-8") as file:
-                    writer = csv.writer(file)
-                    if not file_exists:
-                        writer.writerow([
-                            "timestamp",
-                            *feature_names,
-                            "prediction",
-                            "status",
-                        ])
-                    writer.writerow([
-                        datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                        *[user_inputs[f] for f in feature_names],
-                        prediction_value,
-                        "Success",
-                    ])
+        st.markdown("---")
 
-            except Exception as err:
-                st.error(f"Prediction failed: {err}")
-                with open("monitoring/logs.csv", "a", newline="", encoding="utf-8") as file:
-                    writer = csv.writer(file)
-                    if not os.path.exists("monitoring/logs.csv"):
-                        writer.writerow([
-                            "timestamp",
-                            *feature_names,
-                            "prediction",
-                            "status",
-                        ])
-                    writer.writerow([
-                        datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                        *[user_inputs.get(f, 0) for f in feature_names],
-                        "ERROR",
-                        "Failed",
-                    ])
+        col1, col2 = st.columns(2)
+
+        with col1:
+            st.metric("Total Cost", f"₹{total_cost:,.0f}")
+
+        with col2:
+            st.metric("Remaining Budget", f"₹{remaining:,.0f}")
+
+        st.markdown("---")
+
+        buy_items = result[result["Recommendation"] == "Buy Now"]
+
+        summary = f"""
+### 🤖 AI Shopping Summary
+
+Budget : ₹{budget:,.0f}
+
+Purpose : {purpose}
+
+Priority : {priority}
+
+Family Size : {family_size}
+
+You can purchase **{len(buy_items)} products**
+within your budget.
+
+The estimated spending is **₹{total_cost:,.0f}**
+and your remaining budget will be
+**₹{remaining:,.0f}**.
+
+Products marked **Wait**
+can be purchased later.
+
+Products marked **Avoid**
+are currently not recommended based
+on your selected budget and priority.
+"""
+
+        st.markdown(summary)
+
+        os.makedirs("monitoring", exist_ok=True)
+
+        log_file = "monitoring/logs.csv"
+
+        file_exists = os.path.exists(log_file)
+
+        with open(log_file, "a", newline="", encoding="utf-8") as file:
+
+            writer = csv.writer(file)
+
+            if not file_exists:
+
+                writer.writerow(
+                    [
+                        "Timestamp",
+                        "Budget",
+                        "Purpose",
+                        "Priority",
+                        "Family Size",
+                        "Total Cost",
+                        "Remaining Budget",
+                    ]
+                )
+
+            writer.writerow(
+                [
+                    datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                    budget,
+                    purpose,
+                    priority,
+                    family_size,
+                    total_cost,
+                    remaining,
+                ]
+            )
+
+        st.success("Monitoring log updated successfully.")
 
     st.markdown("---")
+
     section_card(
         """
-        <p>Use this form to run a single inference request and capture the prediction output for monitoring and analysis.</p>
-        """
+<h4>About AI Shopping Planner</h4>
+
+<p>
+
+The AI Shopping Planner recommends products according to the user's
+budget, purpose, priority, and family size.
+
+It intelligently categorizes each product into
+<b>Buy Now</b>,
+<b>Wait</b>, or
+<b>Avoid</b>,
+calculates the total cost, remaining budget,
+generates an AI shopping summary,
+and records every prediction for monitoring.
+
+</p>
+"""
     )
